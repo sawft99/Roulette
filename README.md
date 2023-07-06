@@ -14,4 +14,4 @@ Roulette game simulation. Runs a configurable number of iterations where you can
 
 ## To Do
 - Add ability for placing several bets of each type (Betting on 2 different columns, 3 different numbers, etc.)
-- Add ability for betting different amounts for each type ($3 on 5, $7 on 2, $10 on row 2, $15 on row 3, etc)
+- Add ability for betting different amounts for each type ($3 on 5, $7 on 2, $10 on row 2, $15 on row 3, etc.)
