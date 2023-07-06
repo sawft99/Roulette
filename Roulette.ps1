@@ -66,7 +66,6 @@ $000 = [PSCustomObject]@{
     Column     = 'None'
 }
 
-
 $1 = [PSCustomObject]@{
     Number     = '1'
     Color      = 'Red'
@@ -122,6 +121,7 @@ $7 = [PSCustomObject]@{
     Row        = 1
     Column     = 3
 }
+
 $8 = [PSCustomObject]@{
     Number     = '8'
     Color      = 'Black'
