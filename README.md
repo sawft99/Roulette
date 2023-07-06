@@ -8,6 +8,6 @@ Roulette game simulation. Runs a configurable number of iterations where you can
 - Configure the number of rounds you want to play with $Iterations
 
 ## Notes
-- After each run the statistics for what you landed on for the most and least often are reported
-- At the bottom the amount you started with, the net gain for each category, your ending amount of money, and the history of your wallets flocculation are shown
+- After each run the statistics for what you landed on for the most and least often are reported.
+- After each run the amount you started with, the net gain for each category, your ending amount of money, the history of your wallet's fluctuation, and how often you had rounds with a net gain are shown.
 - The casino I use has 0, 00, and 000 which does not seem to be common. Remove any 0's from $Numbers as needed. This includes the '' and , characters.
