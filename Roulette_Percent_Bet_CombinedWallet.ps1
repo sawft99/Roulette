@@ -30,14 +30,14 @@ $BetPlace = [PSCustomObject]@{
     Dozen      = '3rd'   #(1st,2nd,3rd)
 }
 
-#Numbers are % of wallet
+#Numbers are % of wallet (This will be a percent of your starting wallet and winnings combined)
 $BetAmount = [PSCustomObject]@{
     Color  = 20
     OE     = 30
     Number = 1
     Row    = 0
     Column = 0
-    Dozen  = 5
+    Dozen  = 0
 }
 
 Clear-Host
@@ -465,6 +465,9 @@ $Play = Play
 
 $NetGainCount = ($Global:NetGain -split ',').count
 $NetGainP     = ($NetGainCount / $Iterations).ToString("P")
+$HighestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_} -Descending)[0])
+$HighestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$HighestWalletIndex]
+$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
 
 #Stats
 
@@ -652,6 +655,7 @@ Write-Host ""
 Write-Host (("Ending Wallet:   $") + $Wallet.ToString("N0"))
 Write-Host ""
 Write-Host ("Wallet Log:      $" + "$WalletLog")
+Write-Host ("Wallet Peak:     $" + "$HighestWallet" + " - Play" + " $HighestWalletPlay")
 Write-Host ""
 Write-Host "Rounds with Net Gain: $NetGainP ($NetGainCount)
 "
