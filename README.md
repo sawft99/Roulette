@@ -27,3 +27,4 @@ Roulette game simulation. Runs a configurable number of iterations where you can
 - Add ability for placing several bets of each type (Betting on 2 different columns, 3 different numbers, etc.)
 - Add ability for betting different amounts for each type ($3 on 5, $7 on 2, $10 on row 2, $15 on row 3, etc.)
 - Least occurring X should display instances of 0 instances rather than just the lowest value in the play (Output shows 1 occurrence of row 3 as the lowest but row 2 never showed up in any play thus making it 0 and what should be displayed instead)
+- Add various splitting abilities
