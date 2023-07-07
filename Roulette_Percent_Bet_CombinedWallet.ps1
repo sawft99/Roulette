@@ -30,13 +30,14 @@ $BetPlace = [PSCustomObject]@{
     Dozen      = '3rd'   #(1st,2nd,3rd)
 }
 
+#Numbers are % of wallet (This will be a percent of your starting wallet and winnings combined)
 $BetAmount = [PSCustomObject]@{
     Color  = 20
     OE     = 30
     Number = 1
     Row    = 0
     Column = 0
-    Dozen  = 5
+    Dozen  = 0
 }
 
 Clear-Host
@@ -397,33 +398,33 @@ Function Play {
         }
         #Color Pay
         if ($Selection.Color -eq $BetPlace.Color) {
-            $ColorPayOut = ($BetAmount.Color * ($ColorPay + 1))
+            $ColorPayOut = [int]([int]($Wallet * ($BetAmount.Color / 100)) * ($ColorPay + 1))
         } else {
-            $ColorPayOut = 0 - $BetAmount.Color
+            $ColorPayOut = 0 - [int]($Wallet * ($BetAmount.Color / 100))
         }
         #Number Pay
         if ($Selection.Number -eq $BetPlace.Number) {
-            $NumberPayOut = ($BetAmount.Number * ($NumberPay + 1))
+            $NumberPayOut = [int]([int]($Wallet * ($BetAmount.Number / 100)) * ($NumberPay + 1))
         } else {
-            $NumberPayOut = 0 - $BetAmount.Number
+            $NumberPayOut = 0 - [int]($Wallet * ($BetAmount.Number / 100))
         }
         #Row Pay
         if ($Selection.Row -eq $BetPlace.Row) {
-            $RowPayOut = ($BetAmount.Row * ($RowPay + 1))
+            $RowPayOut = [int]([int]($Wallet * ($BetAmount.Row / 100)) * ($RowPay + 1))
         } else {
-            $RowPayOut = 0 - $BetAmount.Row
+            $RowPayOut = 0 - [int]($Wallet * ($BetAmount.Row / 100))
         }
         #Column Pay
         if ($Selection.Column -eq $BetPlace.Column) {
-            $ColumnPayOut = ($BetAmount.Column * ($ColumnPay + 1))
+            $ColumnPayOut = [int]([int]($Wallet * ($BetAmount.Column / 100)) * ($ColumnPay + 1))
         } else {
-            $ColumnPayOut = 0 - $BetAmount.Column
+            $ColumnPayOut = 0 - [int]($Wallet * ($BetAmount.Column / 100))
         }
         #Dozen Pay
         if ($Selection.Dozen -eq $BetPlace.Dozen) {
-            $DozenPayOut = ($BetAmount.Dozen * ($DozenPay + 1))
+            $DozenPayOut = [int]([int]($Wallet * ($BetAmount.Dozen / 100)) * ($DozenPay + 1))
         } else {
-            $DozenPayOut = 0 - $BetAmount.Dozen
+            $DozenPayOut = 0 - [int]($Wallet * ($BetAmount.Dozen / 100))
         }
         #Total Pay
         $Total = $OEPayOut + $ColorPayOut + $NumberPayOut + $RowPayOut + $ColumnPayOut + $DozenPayOut
