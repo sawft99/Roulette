@@ -18,7 +18,11 @@ Roulette game simulation. Runs a configurable number of iterations where you can
 - After each run the amount you started with, the net gain for each category, your ending amount of money, the history of your wallet's fluctuation, and how often you had rounds with a net gain are shown.
 - The casino I use has 0, 00, and 000 which does not seem to be common. Remove any 0's from $Numbers as needed. This includes the '' and , characters.
 
+## Example Output
+![Pic1](/Examples/Color&EvenOdd&Number&RowStats.png)
+![Pic2](/Examples/Column&DozenStats.png)
+![Pic3](/Examples/BetStats.png)
+
 ## To Do
 - Add ability for placing several bets of each type (Betting on 2 different columns, 3 different numbers, etc.)
 - Add ability for betting different amounts for each type ($3 on 5, $7 on 2, $10 on row 2, $15 on row 3, etc.)
-
