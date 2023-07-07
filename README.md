@@ -2,10 +2,10 @@
 Roulette game simulation. Runs a configurable number of iterations where you can specify what you bet on and the amount you want to bet. Currently limited to placing only of each type of bet. For example, you are only able to bet on the first dozen or a particular number and not several of each. 
 
 ## Versions
-| File | Description | All the same Picks |
-| ---- | ----------- | ------------------ |
-| [Roulette](/Roulette.ps1) | A game of roulette where you bet the same dollar amount each round | X |
-| [Roulette_Percent_Bet](/Roulette_Percent_Bet.ps1) | A game of roulette where you bet the same percentage of your wallet each round  (Your starting amount and winnings combined) | X |
+| File | Description | All the same Picks | (C)ombined Wallet/(S)tarting Wallet/(W)innings Only |
+| ---- | ----------- | ------------------ | --------------------------------------------------- |
+| [Roulette](/Roulette.ps1) | A game of roulette where you bet the same dollar amount each round | X | C |
+| [Roulette_Percent_Bet_CombinedWallet](/Roulette_Percent_Bet_CombinedWallet.ps1) | A game of roulette where you bet the same percentage of your wallet total each round  | X | C |
 
 ## Use
 - Configure what you want to bet on in $BetPlace
