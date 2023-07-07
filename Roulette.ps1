@@ -6,7 +6,7 @@
 #Premade Variables
 ##Add/Remove '0' numbers as needed
 $Numbers = @('0','00','000','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36')
-[Int]$Iterations = 50
+[Int]$Iterations = 25
 $Table = @()
 $EvenOdds = @()
 ##Payout/Ratio
@@ -17,7 +17,7 @@ $EvenOdds = @()
 [Int]$OEPay      = 1
 [Int]$ColorPay   = 1
 
-##Money
+#Money
 [Int]$Wallet = 150
 
 #Bet
@@ -33,7 +33,7 @@ $BetPlace = [PSCustomObject]@{
 $BetAmount = [PSCustomObject]@{
     Color  = 20
     OE     = 30
-    Number = 3
+    Number = 1
     Row    = 0
     Column = 0
     Dozen  = 5
@@ -464,6 +464,9 @@ $Play = Play
 
 $NetGainCount = ($Global:NetGain -split ',').count
 $NetGainP     = ($NetGainCount / $Iterations).ToString("P")
+$HighestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_} -Descending)[0])
+$HighestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$HighestWalletIndex]
+$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
 
 #Stats
 
@@ -651,6 +654,7 @@ Write-Host ""
 Write-Host (("Ending Wallet:   $") + $Wallet.ToString("N0"))
 Write-Host ""
 Write-Host ("Wallet Log:      $" + "$WalletLog")
+Write-Host ("Wallet Peak:     $" + "$HighestWallet" + " - Play" + " $HighestWalletPlay")
 Write-Host ""
 Write-Host "Rounds with Net Gain: $NetGainP ($NetGainCount)
 "
