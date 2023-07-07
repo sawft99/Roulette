@@ -474,6 +474,15 @@ $HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
 $RColorStat = ($Play | Where-Object -Property "Color" -eq "Red").count
 $BColorStat = ($Play | Where-Object -Property "Color" -eq "Black").count
 $NColorStat = ($Play | Where-Object -Property "Color" -eq "None").count
+if ($Null -eq $NColorStat) {
+    $NColorStat = 0
+}
+if ($Null -eq $RColorStat) {
+    $RColorStat = 0
+}
+if ($Null -eq $BColorStat) {
+    $BColorStat = 0
+}
 $RColorStatP = (($Play | Where-Object -Property "Color" -eq "Red").count / $Iterations).ToString("P")
 $BColorStatP = (($Play | Where-Object -Property "Color" -eq "Black").count / $Iterations).ToString("P")
 $NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").count / $Iterations).ToString("P")
