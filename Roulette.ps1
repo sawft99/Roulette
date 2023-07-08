@@ -522,7 +522,7 @@ $MostOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Property
 $MostOccurRowP = ($MostOccurRowCount / $Iterations).ToString("P")
 
 ##Most Occurring Rows w/o 'None'
-if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None').count -gt 0) {
     $MostOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurRowWONone.Count
     $MostOccurRowWONoneP = ($MostOccurRowWONoneCount / $Iterations).ToString("P")
@@ -539,7 +539,7 @@ $LeastOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Propert
 $LeastOccurRowP = ($LeastOccurRowCount / $Iterations).ToString("P")
 
 ##Least Occurring Rows w/o 'None'
-if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None').count -gt 0) {
     $LeastOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurRowWONone.Count
     $LeastOccurRowWONoneP = ($LeastOccurRowWONoneCount / $Iterations).ToString("P")
@@ -555,7 +555,7 @@ $MostOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -Pr
 $MostOccurColumnP = ($MostOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None').count -gt 0) {
     $MostOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurColumnWONone.Count
     $MostOccurColumnWONoneP = ($MostOccurColumnWONoneCount / $Iterations).ToString("P")
@@ -571,7 +571,7 @@ $LeastOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -P
 $LeastOccurColumnP = ($LeastOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Column| Where-Object -Property Name -NE 'None').count -gt 0) {
     $LeastOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurColumnWONone.Count
     $LeastOccurColumnWONoneP = ($LeastOccurColumnWONoneCount / $Iterations).ToString("P")
@@ -587,7 +587,7 @@ $MostOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Prop
 $MostOccurDozenP = ($MostOccurDozenCount / $Iterations).ToString("P")
 
 ##Most Occurring Dozens w/o 'None'
-if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None').count -gt 0) {
     $MostOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurDozenWONone.Count
     $MostOccurDozenWONoneP = ($MostOccurDozenWONoneCount / $Iterations).ToString("P")
@@ -603,7 +603,7 @@ $LeastOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Pro
 $LeastOccurDozenP = ($LeastOccurDozenCount / $Iterations).ToString("P")
 
 ##Least Occurring Dozens w/o 'None'
-if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None').count -gt 0) {
     $LeastOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurDozenWONone.Count
     $LeastOccurDozenWONoneP = ($LeastOccurDozenWONoneCount / $Iterations).ToString("P")
