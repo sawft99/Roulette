@@ -19,6 +19,7 @@ $EvenOdds = @()
 
 #Money
 [Int]$Wallet = 150
+$StartingWallet = $Wallet
 
 #Bet
 $BetPlace = [PSCustomObject]@{
@@ -367,7 +368,6 @@ Function LoopAddToTable {
 $Table = LoopAddToTable
 
 #Game
-$StartingWallet = $Wallet
 
 Function Play {
     $Play = @()
@@ -385,10 +385,12 @@ Function Play {
         $RanNum = Get-Random -Minimum 0 -Maximum $Numbers.Count
         $Selection = $Table[$RanNum]
         #OE Pay
-        if ($Selection.Number % 2 -eq 0) {
+       if (($Selection.Number % 2 -eq 0) -and ((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
             $OE = 'Even'
-        } else {
+        } elseif ((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000'))) {
             $OE = 'Odd'
+        } else {
+            $OE = 'Zero'
         }
         if ($BetPlace.OE -eq $OE) {
             $OEPayOut = ($BetAmount.OE * ($OEPay + 1))
@@ -471,9 +473,9 @@ $HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
 #Stats
 
 ##Color
-$RColorStat = ($Play | Where-Object -Property "Color" -eq "Red").count
-$BColorStat = ($Play | Where-Object -Property "Color" -eq "Black").count
-$NColorStat = ($Play | Where-Object -Property "Color" -eq "None").count
+$RColorStat = ($Play | Where-Object -Property "Color" -eq "Red").Color.Count
+$BColorStat = ($Play | Where-Object -Property "Color" -eq "Black").Color.Count
+$NColorStat = ($Play | Where-Object -Property "Color" -eq "None").Color.count
 if ($Null -eq $NColorStat) {
     $NColorStat = 0
 }
@@ -483,22 +485,26 @@ if ($Null -eq $RColorStat) {
 if ($Null -eq $BColorStat) {
     $BColorStat = 0
 }
-$RColorStatP = (($Play | Where-Object -Property "Color" -eq "Red").count / $Iterations).ToString("P")
-$BColorStatP = (($Play | Where-Object -Property "Color" -eq "Black").count / $Iterations).ToString("P")
-$NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").count / $Iterations).ToString("P")
+$RColorStatP = (($Play | Where-Object -Property "Color" -eq "Red").Color.Count / $Iterations).ToString("P")
+$BColorStatP = (($Play | Where-Object -Property "Color" -eq "Black").Color.Count / $Iterations).ToString("P")
+$NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").Color.count / $Iterations).ToString("P")
 
 ##Even/Odd
 ForEach ($Num in $Play.Number) {
-    if ($Num % 2 -eq 0) {
+    if ($Num % 2 -eq 0 -and ((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
         $EvenOdds += 'Even'
-    } else {
+    } elseif (((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
         $EvenOdds += 'Odd'
+    } else {
+        $EvenOdds += 'Zero'
     }
 }
-$Evens = ($EvenOdds | Where-Object {$_ -eq 'Even'}).count
-$Odds = ($EvenOdds | Where-Object {$_ -eq 'Odd'}).count
+$Evens = ($EvenOdds | Where-Object {$_ -eq 'Even'}).Count
+$Odds = ($EvenOdds | Where-Object {$_ -eq 'Odd'}).Count
+$Zeros  = ($EvenOdds | Where-Object {$_ -eq 'None'}).Count
 $EvensP = ($Evens / $Iterations).ToString("P")
 $OddsP = ($Odds / $Iterations).ToString("P")
+$ZerosP = ($Zeros / $Iterations).ToString("P")
 
 ##Most occurring numbers
 $MostOccurNum = ($Play | Group-Object -Property Number | Where-Object -Property Count -EQ ($Play | Group-Object -Property Number | Sort-Object -Property Count -Descending)[0].count).Name
@@ -516,19 +522,32 @@ $MostOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Property
 $MostOccurRowP = ($MostOccurRowCount / $Iterations).ToString("P")
 
 ##Most Occurring Rows w/o 'None'
-$MostOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
-$MostOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurRowWONone.Count
-$MostOccurRowWONoneP = ($MostOccurRowWONoneCount / $Iterations).ToString("P")
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
+    $MostOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
+    $MostOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurRowWONone.Count
+    $MostOccurRowWONoneP = ($MostOccurRowWONoneCount / $Iterations).ToString("P")
+} else {
+    $MostOccurRowWONone = $MostOccurRow
+    $MostOccurRowWONoneCount = $MostOccurRowCount
+    $MostOccurRowWONoneP = $MostOccurRowP
+}
 
 ##Least Occurring Rows
+
 $LeastOccurRow = ($Play | Group-Object -Property Row | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Sort-Object -Property Count)[0].count)).Name
 $LeastOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Property Count)[0].Count * $LeastOccurRow.Count
 $LeastOccurRowP = ($LeastOccurRowCount / $Iterations).ToString("P")
 
-##Most Occurring Rows w/o 'None'
-$LeastOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
-$LeastOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurRowWONone.Count
-$LeastOccurRowWONoneP = ($LeastOccurRowWONoneCount / $Iterations).ToString("P")
+##Least Occurring Rows w/o 'None'
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
+    $LeastOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
+    $LeastOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurRowWONone.Count
+    $LeastOccurRowWONoneP = ($LeastOccurRowWONoneCount / $Iterations).ToString("P")
+} else {
+    $LeastOccurRowWONone = $LeastOccurRow
+    $LeastOccurRowWONoneCount = $LeastOccurRowCount
+    $LeastOccurRowWONoneP = $LeastOccurRowP
+}
 
 ##Most Occurring Columns
 $MostOccurColumn = ($Play | Group-Object -Property Column | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Sort-Object -Property Count -Descending)[0].count)).Name
@@ -536,9 +555,15 @@ $MostOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -Pr
 $MostOccurColumnP = ($MostOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-$MostOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
-$MostOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurColumnWONone.Count
-$MostOccurColumnWONoneP = ($MostOccurColumnWONoneCount / $Iterations).ToString("P")
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
+    $MostOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
+    $MostOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurColumnWONone.Count
+    $MostOccurColumnWONoneP = ($MostOccurColumnWONoneCount / $Iterations).ToString("P")
+} else {
+    $MostOccurColumnWONone = $MostOccurColumn
+    $MostOccurColumnWONoneCount = $MostOccurColumnCount
+    $MostOccurColumnWONoneP = $MostOccurColumnP
+}
 
 ##Least Occurring Columns
 $LeastOccurColumn = ($Play | Group-Object -Property Column | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Sort-Object -Property Count)[0].count)).Name
@@ -546,9 +571,15 @@ $LeastOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -P
 $LeastOccurColumnP = ($LeastOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-$LeastOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
-$LeastOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurColumnWONone.Count
-$LeastOccurColumnWONoneP = ($LeastOccurColumnWONoneCount / $Iterations).ToString("P")
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
+    $LeastOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
+    $LeastOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurColumnWONone.Count
+    $LeastOccurColumnWONoneP = ($LeastOccurColumnWONoneCount / $Iterations).ToString("P")
+} else {
+    $LeastOccurColumnWONone = $LeastOccurColumn
+    $LeastOccurColumnWONoneCount = $LeastOccurColumnCount
+    $LeastOccurColumnWONoneP = $LeastOccurColumnP
+}
 
 ##Most Occurring Dozens
 $MostOccurDozen = ($Play | Group-Object -Property Dozen | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Sort-Object -Property Count -Descending)[0].count)).Name
@@ -556,9 +587,15 @@ $MostOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Prop
 $MostOccurDozenP = ($MostOccurDozenCount / $Iterations).ToString("P")
 
 ##Most Occurring Dozens w/o 'None'
-$MostOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
-$MostOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurDozenWONone.Count
-$MostOccurDozenWONoneP = ($MostOccurDozenWONoneCount / $Iterations).ToString("P")
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
+    $MostOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
+    $MostOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurDozenWONone.Count
+    $MostOccurDozenWONoneP = ($MostOccurDozenWONoneCount / $Iterations).ToString("P")
+} else {
+    $MostOccurDozenWONone = $MostOccurDozen
+    $MostOccurDozenWONoneCount = $MostOccurDozenCount
+    $MostOccurDozenWONoneP = $MostOccurDozenP
+}
 
 ##Least Occurring Dozens
 $LeastOccurDozen = ($Play | Group-Object -Property Dozen | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Sort-Object -Property Count)[0].count)).Name
@@ -566,9 +603,15 @@ $LeastOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Pro
 $LeastOccurDozenP = ($LeastOccurDozenCount / $Iterations).ToString("P")
 
 ##Least Occurring Dozens w/o 'None'
-$LeastOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
-$LeastOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurDozenWONone.Count
-$LeastOccurDozenWONoneP = ($LeastOccurDozenWONoneCount / $Iterations).ToString("P")
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
+    $LeastOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
+    $LeastOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurDozenWONone.Count
+    $LeastOccurDozenWONoneP = ($LeastOccurDozenWONoneCount / $Iterations).ToString("P")
+} else {
+    $LeastOccurDozenWONone = $LeastOccurDozen
+    $LeastOccurDozenWONoneCount = $LeastOccurDozenCount
+    $LeastOccurDozenWONoneP = $LeastOccurDozenP
+}
 
 #Output
 Write-Host "
@@ -585,7 +628,8 @@ Even/Odd
 ======
 
 Evens: $EvensP ($Evens)
-Odds:  $OddsP ($Odds)"
+Odds:  $OddsP ($Odds)
+Zeros: $ZerosP ($Zeros)"
 Write-Host "
 ======
 Number
