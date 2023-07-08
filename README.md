@@ -6,6 +6,7 @@ Roulette game simulation. Runs a configurable number of iterations where you can
 | ---- | ----------- | ------------------ | --------------------------------------------------- |
 | [Roulette](/Roulette.ps1) | A game of roulette where you bet the same dollar amount each round | X | C |
 | [Roulette_Percent_Bet_CombinedWallet](/Roulette_Percent_Bet_CombinedWallet.ps1) | A game of roulette where you bet the same percentage of your wallet total each round  | X | C |
+| [Roulette_Martingale](/Roulette_Martingale.ps1) | A game of roulette where you bet the same dollar amount but with the with Martingale strategy | X | C |
 
 ## Use
 - Configure what you want to bet on in $BetPlace
