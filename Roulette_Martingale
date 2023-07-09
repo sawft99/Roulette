@@ -18,7 +18,7 @@ $EvenOdds = @()
 [Int]$ColorPay   = 1
 
 #Money
-[Int]$Wallet = 150
+[Int]$Wallet = 500
 $StartingWallet = $Wallet
 
 #Bet
@@ -35,9 +35,9 @@ $BetAmount = [PSCustomObject]@{
     Color  = 20
     OE     = 30
     Number = 1
-    Row    = 0
-    Column = 0
-    Dozen  = 5
+    Row    = 2
+    Column = 1
+    Dozen  = 2
 }
 
 Clear-Host
@@ -391,6 +391,16 @@ Function Play {
             Column = $BetAmount.Column * $LossCounter
             Dozen  = $BetAmount.Dozen * $LossCounter
         }
+        Write-Host "=========
+New Bet $i
+=========="
+Write-Host Color: $NewBetAmount.Color
+Write-Host OE: $NewBetAmount.OE
+Write-Host Number: $NewBetAmount.Number
+Write-Host Row: $NewBetAmount.Row
+Write-Host Column: $NewBetAmount.Column
+Write-Host Dozen: $NewBetAmount.Dozen
+Write-Host "" 
         $RanNum = Get-Random -Minimum 0 -Maximum $Numbers.Count
         $Selection = $Table[$RanNum]
         #OE Pay
@@ -489,7 +499,10 @@ $NetGainCount = ($Global:NetGain -split ',').count
 $NetGainP     = ($NetGainCount / $Iterations).ToString("P")
 $HighestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_} -Descending)[0])
 $HighestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$HighestWalletIndex]
-$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
+$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet") + 1
+$LowestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_})[0])
+$LowestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$LowestWalletIndex]
+$LowestWalletPlay = ($WalletLog -split ',').IndexOf("$LowestWallet") + 1
 
 #Stats
 
@@ -512,9 +525,9 @@ $NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").Color.count 
 
 ##Even/Odd
 ForEach ($Num in $Play.Number) {
-    if ($Num % 2 -eq 0 -and ((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
+    if ($Num % 2 -eq 0 -and ((($Num -eq '0') -or ($Num-eq '00') -or ($Num -eq '000')) -eq $false)) {
         $EvenOdds += 'Even'
-    } elseif (((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
+    } elseif (((($NUm -eq '0') -or ($Num -eq '00') -or ($Num -eq '000')) -eq $false)) {
         $EvenOdds += 'Odd'
     } else {
         $EvenOdds += 'Zero'
@@ -522,7 +535,7 @@ ForEach ($Num in $Play.Number) {
 }
 $Evens = ($EvenOdds | Where-Object {$_ -eq 'Even'}).Count
 $Odds = ($EvenOdds | Where-Object {$_ -eq 'Odd'}).Count
-$Zeros  = ($EvenOdds | Where-Object {$_ -eq 'None'}).Count
+$Zeros  = ($EvenOdds | Where-Object {$_ -eq 'Zero'}).Count
 $EvensP = ($Evens / $Iterations).ToString("P")
 $OddsP = ($Odds / $Iterations).ToString("P")
 $ZerosP = ($Zeros / $Iterations).ToString("P")
@@ -729,6 +742,7 @@ Write-Host (("Ending Wallet:   $") + $Wallet.ToString("N0"))
 Write-Host ""
 Write-Host ("Wallet Log:      $" + "$WalletLog")
 Write-Host ("Wallet Peak:     $" + "$HighestWallet" + " - Play" + " $HighestWalletPlay")
+Write-Host ("Wallet Drop:     $" + "$LowestWallet" + " - Play" + " $LowestWalletPlay")
 Write-Host ""
 Write-Host "Rounds with Net Gain: $NetGainP ($NetGainCount)
 "
