@@ -468,7 +468,10 @@ $NetGainCount = ($Global:NetGain -split ',').count
 $NetGainP     = ($NetGainCount / $Iterations).ToString("P")
 $HighestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_} -Descending)[0])
 $HighestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$HighestWalletIndex]
-$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet")
+$HighestWalletPlay = ($WalletLog -split ',').IndexOf("$HighestWallet") + 1
+$LowestWalletIndex = ($WalletLog -split ',' | Sort-Object {[int]$_}).IndexOf(($WalletLog -split ',' | Sort-Object {[int]$_})[0])
+$LowestWallet = ($WalletLog -split ',' | Sort-Object {[int]$_})[$LowestWalletIndex]
+$LowestWalletPlay = ($WalletLog -split ',').IndexOf("$LowestWallet") + 1
 
 #Stats
 
@@ -491,9 +494,9 @@ $NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").Color.count 
 
 ##Even/Odd
 ForEach ($Num in $Play.Number) {
-    if ($Num % 2 -eq 0 -and ((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
+    if ($Num % 2 -eq 0 -and ((($Num -eq '0') -or ($Num-eq '00') -or ($Num -eq '000')) -eq $false)) {
         $EvenOdds += 'Even'
-    } elseif (((($Selection.Number -eq '0') -or ($Selection.Number -eq '00') -or ($Selection.Number -eq '000')) -eq $false)) {
+    } elseif (((($NUm -eq '0') -or ($Num -eq '00') -or ($Num -eq '000')) -eq $false)) {
         $EvenOdds += 'Odd'
     } else {
         $EvenOdds += 'Zero'
@@ -501,7 +504,7 @@ ForEach ($Num in $Play.Number) {
 }
 $Evens = ($EvenOdds | Where-Object {$_ -eq 'Even'}).Count
 $Odds = ($EvenOdds | Where-Object {$_ -eq 'Odd'}).Count
-$Zeros  = ($EvenOdds | Where-Object {$_ -eq 'None'}).Count
+$Zeros  = ($EvenOdds | Where-Object {$_ -eq 'Zero'}).Count
 $EvensP = ($Evens / $Iterations).ToString("P")
 $OddsP = ($Odds / $Iterations).ToString("P")
 $ZerosP = ($Zeros / $Iterations).ToString("P")
@@ -522,7 +525,7 @@ $MostOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Property
 $MostOccurRowP = ($MostOccurRowCount / $Iterations).ToString("P")
 
 ##Most Occurring Rows w/o 'None'
-if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
     $MostOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurRowWONone.Count
     $MostOccurRowWONoneP = ($MostOccurRowWONoneCount / $Iterations).ToString("P")
@@ -539,7 +542,7 @@ $LeastOccurRowCount = ($Play | Group-Object -Property Row | Sort-Object -Propert
 $LeastOccurRowP = ($LeastOccurRowCount / $Iterations).ToString("P")
 
 ##Least Occurring Rows w/o 'None'
-if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Row).Name.Contains("None")).Count -gt 0) {
     $LeastOccurRowWONone = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Row | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurRowWONoneCount = ($Play | Group-Object -Property Row | Where-Object -Property Name -NE 'None' | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurRowWONone.Count
     $LeastOccurRowWONoneP = ($LeastOccurRowWONoneCount / $Iterations).ToString("P")
@@ -555,7 +558,7 @@ $MostOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -Pr
 $MostOccurColumnP = ($MostOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
     $MostOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurColumnWONone.Count
     $MostOccurColumnWONoneP = ($MostOccurColumnWONoneCount / $Iterations).ToString("P")
@@ -571,7 +574,7 @@ $LeastOccurColumnCount = ($Play | Group-Object -Property Column | Sort-Object -P
 $LeastOccurColumnP = ($LeastOccurColumnCount / $Iterations).ToString("P")
 
 ##Most Occurring Columns w/o 'None'
-if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Column| Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Column).Name.Contains("None")).Count -gt 0) {
     $LeastOccurColumnWONone = ($Play | Group-Object -Property Column | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurColumnWONoneCount = ($Play | Group-Object -Property Column | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurColumnWONone.Count
     $LeastOccurColumnWONoneP = ($LeastOccurColumnWONoneCount / $Iterations).ToString("P")
@@ -587,7 +590,7 @@ $MostOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Prop
 $MostOccurDozenP = ($MostOccurDozenCount / $Iterations).ToString("P")
 
 ##Most Occurring Dozens w/o 'None'
-if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
     $MostOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].count)).Name
     $MostOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count -Descending)[0].Count * $MostOccurDozenWONone.Count
     $MostOccurDozenWONoneP = ($MostOccurDozenWONoneCount / $Iterations).ToString("P")
@@ -603,7 +606,7 @@ $LeastOccurDozenCount = ($Play | Group-Object -Property Dozen | Sort-Object -Pro
 $LeastOccurDozenP = ($LeastOccurDozenCount / $Iterations).ToString("P")
 
 ##Least Occurring Dozens w/o 'None'
-if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0 -and ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None').count -gt 0) {
+if ((($Play | Group-Object -Property Dozen).Name.Contains("None")).Count -gt 0) {
     $LeastOccurDozenWONone = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -NE 'None' | Where-Object -Property Count -eq (($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].count)).Name
     $LeastOccurDozenWONoneCount = ($Play | Group-Object -Property Dozen | Where-Object -Property Name -ne 'None' | Sort-Object -Property Count)[0].Count * $LeastOccurDozenWONone.Count
     $LeastOccurDozenWONoneP = ($LeastOccurDozenWONoneCount / $Iterations).ToString("P")
@@ -708,6 +711,7 @@ Write-Host (("Ending Wallet:   $") + $Wallet.ToString("N0"))
 Write-Host ""
 Write-Host ("Wallet Log:      $" + "$WalletLog")
 Write-Host ("Wallet Peak:     $" + "$HighestWallet" + " - Play" + " $HighestWalletPlay")
+Write-Host ("Wallet Drop:     $" + "$LowestWallet" + " - Play" + " $LowestWalletPlay")
 Write-Host ""
 Write-Host "Rounds with Net Gain: $NetGainP ($NetGainCount)
 "
