@@ -18,26 +18,26 @@ $EvenOdds = @()
 [Int]$ColorPay   = 1
 
 #Money
-[Int]$Wallet = 500
+[Int]$Wallet = 250
 $StartingWallet = $Wallet
 
 #Bet
 $BetPlace = [PSCustomObject]@{
     Color      = 'Black' #(Black/Red/None)
     OE         = 'Even'  #(Even/Odd)
-    Number     = 14      #(0-36)
+    Number     = 11      #(0-36)
     Row        = 1       #(1-3)
-    Column     = 11      #(1-12)
-    Dozen      = '3rd'   #(1st,2nd,3rd)
+    Column     = 3      #(1-12)
+    Dozen      = '1st'   #(1st,2nd,3rd)
 }
 
 $BetAmount = [PSCustomObject]@{
-    Color  = 20
-    OE     = 30
+    Color  = 10
+    OE     = 10
     Number = 1
-    Row    = 2
+    Row    = 3
     Column = 1
-    Dozen  = 2
+    Dozen  = 3
 }
 
 Clear-Host
@@ -372,7 +372,12 @@ $Table = LoopAddToTable
 Function Play {
     $Play = @()
     $i = 0
-    $LossCounter = 1
+    $RowLossCounter = 1
+    $ColumnLossCounter = 1
+    $DozenLossCounter = 1
+    $ColorLossCounter = 1
+    $OELossCounter = 1
+    $NumberLossCounter = 1
     [string]$Global:TotalLog = @()
     [string]$Global:WalletLog = @()
     [string]$Global:NetGain = @()
@@ -384,23 +389,14 @@ Function Play {
     [Int]$Global:DozenNet = 0
     do {
         $NewBetAmount = [PSCustomObject]@{
-            Color  = $BetAmount.Color * $LossCounter
-            OE     = $BetAmount.OE * $LossCounter
-            Number = $BetAmount.Number * $LossCounter
-            Row    = $BetAmount.Row * $LossCounter
-            Column = $BetAmount.Column * $LossCounter
-            Dozen  = $BetAmount.Dozen * $LossCounter
+            Color  = $BetAmount.Color * $ColorLossCounter
+            OE     = $BetAmount.OE * $OELossCounter
+            Number = $BetAmount.Number * $NumberLossCounter
+            Row    = $BetAmount.Row * $RowLossCounter
+            Column = $BetAmount.Column * $ColumnLossCounter
+            Dozen  = $BetAmount.Dozen * $DozenLossCounter
         }
-        Write-Host "=========
-New Bet $i
-=========="
-Write-Host Color: $NewBetAmount.Color
-Write-Host OE: $NewBetAmount.OE
-Write-Host Number: $NewBetAmount.Number
-Write-Host Row: $NewBetAmount.Row
-Write-Host Column: $NewBetAmount.Column
-Write-Host Dozen: $NewBetAmount.Dozen
-Write-Host "" 
+
         $RanNum = Get-Random -Minimum 0 -Maximum $Numbers.Count
         $Selection = $Table[$RanNum]
         #OE Pay
@@ -413,50 +409,50 @@ Write-Host ""
         }
         if ($BetPlace.OE -eq $OE) {
             $OEPayOut = (($NewBetAmount.OE) * ($OEPay + 1))
-            $LossCounter = 1
+            $OELossCounter = 1
         } else {
             $OEPayOut = 0 - $BetAmount.OE
-            $LossCounter = $LossCounter + 1
+            $OELossCounter = $OELossCounter + 1
         }
         #Color Pay
         if ($Selection.Color -eq $BetPlace.Color) {
             $ColorPayOut = ($NewBetAmount.Color * ($ColorPay + 1))
-            $LossCounter = 1
+            $ColorLossCounter = 1
         } else {
             $ColorPayOut = 0 - $NewBetAmount.Color
-            $LossCounter = $LossCounter + 1
+            $ColorLossCounter = $ColorLossCounter + 1
         }
         #Number Pay
         if ($Selection.Number -eq $BetPlace.Number) {
             $NumberPayOut = ($NewBetAmount.Number * ($NumberPay + 1))
-            $LossCounter = 1
+            #Number$LossCounter = 1
         } else {
             $NumberPayOut = 0 - $NewBetAmount.Number
-            $LossCounter = $LossCounter + 1
+            #$NumberLossCounter = $NumberLossCounter + 1
         }
         #Row Pay
         if ($Selection.Row -eq $BetPlace.Row) {
             $RowPayOut = ($NewBetAmount.Row * ($RowPay + 1))
-            $LossCounter = 1
+            $RowLossCounter = 1
         } else {
             $RowPayOut = 0 - $NewBetAmount.Row
-            $LossCounter = $LossCounter + 1
+            $RowLossCounter = $RowLossCounter + 1
         }
         #Column Pay
         if ($Selection.Column -eq $BetPlace.Column) {
             $ColumnPayOut = ($NewBetAmount.Column * ($ColumnPay + 1))
-            $LossCounter = 1
+            $ColumnLossCounter = 1
         } else {
             $ColumnPayOut = 0 - $NewBetAmount.Column
-            $LossCounter = $LossCounter + 1
+            $ColumnLossCounter = $ColumnLossCounter + 1
         }
         #Dozen Pay
         if ($Selection.Dozen -eq $BetPlace.Dozen) {
             $DozenPayOut = ($NewBetAmount.Dozen * ($DozenPay + 1))
-            $LossCounter = 1
+            $DozenLossCounter = 1
         } else {
             $DozenPayOut = 0 - $NewBetAmount.Dozen
-            $LossCounter = $LossCounter + 1
+            $DozenLossCounter = $DozenLossCounter + 1
         }
         #Total Pay
         $Total = $OEPayOut + $ColorPayOut + $NumberPayOut + $RowPayOut + $ColumnPayOut + $DozenPayOut
@@ -467,20 +463,12 @@ Write-Host ""
         $Global:ColumnNet += $ColumnPayOut
         $Global:DozenNet += $DozenPayOut
         $Global:Wallet = $Wallet + $Total
-        #Write-Host "OE:     $OEPayOut"
-        #Write-Host "Color:  $ColorPayOut"
-        #Write-Host "Number: $NumberPayOut"
-        #Write-Host "Row:    $RowPayOut"
-        #Write-Host "Column: $ColumnPayOut"
-        #Write-Host "Dozen:  $DozenPayOut"
         [string]$Global:TotalLog += $Total.ToString()
         [string]$Global:WalletLog += $Wallet.ToString()
         if ($i -lt ($Iterations - 1)) {
             [string]$Global:WalletLog += ','
             [string]$Global:TotalLog += ','
         }
-        #Write-Host ("Total payout:      $" + "$Total")
-        #Write-Host ("New wallet amount: $" + "$Wallet")
         $Play += $Selection
         $i++
         if ($Total -gt 0) {
