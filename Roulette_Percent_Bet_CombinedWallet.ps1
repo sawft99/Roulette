@@ -6,7 +6,7 @@
 #Premade Variables
 ##Add/Remove '0' numbers as needed
 $Numbers = @('0','00','000','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36')
-[Int]$Iterations = 25
+[Int]$Iterations = 20
 $Table = @()
 $EvenOdds = @()
 ##Payout/Ratio
@@ -16,12 +16,14 @@ $EvenOdds = @()
 [Int]$DozenPay   = 2
 [Int]$OEPay      = 1
 [Int]$ColorPay   = 1
+[Int]$HighLowPay = 1
 
 #Money
-[Int]$Wallet = 150
+[Int]$Wallet = 300
 
 #Bet
 $BetPlace = [PSCustomObject]@{
+    HighLow = 'High'  #(High/Low) Don't use 'None' since that would not be an actual bet you could place
     Color      = 'Black' #(Black/Red/None)
     OE         = 'Even'  #(Even/Odd)
     Number     = 0      #(0-36)
@@ -32,12 +34,13 @@ $BetPlace = [PSCustomObject]@{
 
 #Numbers are % of wallet (This will be a percent of your starting wallet and winnings combined)
 $BetAmount = [PSCustomObject]@{
-    Color  = 15
-    OE     = 15
-    Number = 1
-    Row    = 1
-    Column = 1
-    Dozen  = 1
+    HighLow = 20
+    Color   = 15
+    OE      = 15
+    Number  = 1
+    Row     = 1
+    Column  = 1
+    Dozen   = 1
 }
 
 Clear-Host
@@ -360,7 +363,6 @@ Function LoopAddToTable {
     foreach ($Number in $Numbers) {
         $Temp = Get-Variable $Number -ValueOnly
         $Table += $Temp
-        #Write-Host $Temp
     }
     $Table
 }
@@ -376,6 +378,7 @@ Function Play {
     [string]$Global:TotalLog = @()
     [string]$Global:WalletLog = @()
     [string]$Global:NetGain = @()
+    [Int]$Global:HighLowNet = 0
     [Int]$Global:OENet = 0
     [Int]$Global:ColorNet = 0
     [Int]$Global:NumberNet = 0
@@ -398,6 +401,22 @@ Function Play {
         } else {
             $OEPayOut = 0 - $BetAmount.OE
         }
+        #High/Low Pay
+        if ($Selection.Number -in 1..18) {
+           $HLResult = 'Low'
+        }
+        if ($Selection.Number -in 19..36) {
+            $HLResult = 'High'
+        }
+        if ($Selection.Number -notin 1..36) {
+            $HLResult = 'None'
+        }
+        if ($HLResult -eq $BetPlace.HighLow) {
+            $HighLowPayout = [int]([int]($wallet * ($BetAmount.HighLow / 100)) * ($HighLowPay))
+        } else {
+            $HighLowPayout = 0 - [int]($Wallet * ($BetAmount.HighLow / 100))
+        }
+        $Selection | Add-Member -MemberType NoteProperty "HighLow" -Value $HLResult -Force
         #Color Pay
         if ($Selection.Color -eq $BetPlace.Color) {
             $ColorPayOut = [int]([int]($Wallet * ($BetAmount.Color / 100)) * ($ColorPay + 1))
@@ -429,8 +448,9 @@ Function Play {
             $DozenPayOut = 0 - [int]($Wallet * ($BetAmount.Dozen / 100))
         }
         #Total Pay
-        $Total = $OEPayOut + $ColorPayOut + $NumberPayOut + $RowPayOut + $ColumnPayOut + $DozenPayOut
+        $Total = $OEPayOut + $ColorPayOut + $NumberPayOut + $RowPayOut + $ColumnPayOut + $DozenPayOut + $HighLowPayout
         $Global:OENet += $OEPayOut
+        $Global:HighLowNet += $HighLowPayout
         $Global:ColorNet += $ColorPayOut
         $Global:NumberNet += $NumberPayOut
         $Global:RowNet += $RowPayOut
@@ -492,6 +512,26 @@ if ($Null -eq $BColorStat) {
 $RColorStatP = (($Play | Where-Object -Property "Color" -eq "Red").Color.Count / $Iterations).ToString("P")
 $BColorStatP = (($Play | Where-Object -Property "Color" -eq "Black").Color.Count / $Iterations).ToString("P")
 $NColorStatP = (($Play | Where-Object -Property "Color" -eq "None").Color.count / $Iterations).ToString("P")
+
+##High/Low
+$HighStat     = ($Play | Where-Object -Property "HighLow" -eq 'High').count
+$LowStat      = ($Play | Where-Object -Property "HighLow" -eq 'Low').count
+$NHighLowStat = ($Play | Where-Object -Property "HighLow" -eq 'None').count
+if ($Null -eq $HighStat) {
+    $HighStat = 0
+} else {
+    $HighsP   = ($HighStat / $Iterations).ToString("P")
+}
+if ($Null -eq $LowStat) {
+    $LowStat = 0
+} else {
+    $LowsP    = ($LowStat / $Iterations).ToString("P")
+}
+if ($Null -eq $NHighLowStat) {
+    $NHighLowStat = 0
+} else {
+    $NHighLowP = ($NHighLowStat / $Iterations).ToString("P")
+}
 
 ##Even/Odd
 ForEach ($Num in $Play.Number) {
@@ -636,6 +676,14 @@ Odds:  $OddsP ($Odds)
 Zeros: $ZerosP ($Zeros)"
 Write-Host "
 ======
+High/Low
+======
+
+Highs: $HighsP ($HighStat)
+Lows:  $LowsP ($LowStat)
+Nones: $NHighLowP ($NHighLowStat)"
+Write-Host "
+======
 Number
 ======
 "
@@ -701,6 +749,7 @@ Betting
 Write-Host ("Starting Wallet: $" + $StartingWallet)
 Write-Host ""
 Write-Host (("Odds/Evens Net:  $") + $Global:OENet.ToString("N0"))
+Write-Host (("High/Lows Net:   $") + $Global:HighLowNet.ToString("N0"))
 Write-Host (("Color Net:       $") + $Global:ColorNet.ToString("N0"))
 Write-Host (("Number Net:      $") + $Global:NumberNet.ToString("N0"))
 Write-Host (("Row Net:         $") + $Global:RowNet.ToString("N0"))
